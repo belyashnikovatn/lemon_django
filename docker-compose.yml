@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  django:
+    build: .
+    container_name: django_app
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/app
+    env_file: 
+      - .env
+    environment:
+      - ALLOWED_HOSTS=localhost, django, 0.0.0.0
+      - CSRF_TRUSTED_ORIGINS=https://*.ngrok-free.app
+    command: ["sh", "-c", "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  ngrok:
+    build:
+      context: .
+      dockerfile: Dockerfile.ngrok  # добавим этот файл ниже
+    container_name: ngrok
+    ports:
+      - "4040:4040"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_TOKEN}
+    depends_on:
+      - django

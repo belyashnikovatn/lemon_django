@@ -1,0 +1,11 @@
+FROM alpine:latest
+
+RUN apk add --no-cache curl unzip \
+    && curl -s https://bin.equinox.io/c/bNyj1mQVY4c/ngrok-v3-stable-linux-amd64.zip -o ngrok.zip \
+    && unzip ngrok.zip -d /usr/local/bin \
+    && rm ngrok.zip
+
+COPY start_ngrok.sh /start_ngrok.sh
+RUN chmod +x /start_ngrok.sh
+
+CMD ["/start_ngrok.sh"]
