@@ -1,0 +1,110 @@
+### 🔑 Получить токен
+POST http://localhost:8000/api/login/
+Content-Type: application/json
+
+{
+  "username": "bun",
+  "password": "bun123"
+}
+
+### 🧾 Создание checkout (через API Lemon Squeezy напрямую, не Django)
+# ⚠️ Запрос напрямую к https://api.lemonsqueezy.com — для тестов API-ключом
+POST https://api.lemonsqueezy.com/v1/checkouts
+Content-Type: application/vnd.api+json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ1NDY3NjY5LCJpYXQiOjE3NDU0NjQwNjksImp0aSI6ImI0NjAyMGZmNGEwZDQyYjViNWJhMTc2MmQ2MThkZDY1IiwidXNlcl9pZCI6NX0.YOopl880CX1gvjZ76VBIfUkD2CGD4Ph7123Eai4lJFE
+
+
+{
+  "data": {
+    "type": "checkouts",
+    "attributes": {
+      "checkout_data": {
+        "email": "bun@example.com",
+        "custom": {
+          "user_id": "5"
+        }
+      },
+      "product_options": {
+        "enabled_variants": [772403],
+        "redirect_url": "https://yoursite.com/thank-you",
+        "receipt_link_url": "https://yoursite.com/receipt",
+        "receipt_thank_you_note": "Thank you for your purchase!"
+      }
+    },
+    "relationships": {
+      "store": {
+        "data": {
+          "type": "stores",
+          "id": "172964"
+        }
+      },
+      "variant": {
+        "data": {
+          "type": "variants",
+          "id": "772403"
+        }
+      }
+    }
+  }
+}
+
+### 🧾 Создание checkout через Django (если используешь backend endpoint)
+# ⚠️ Этот запрос не требует Bearer токена от пользователя.
+POST http://localhost:8000/api/create-checkout/
+Content-Type: application/json
+Authorization: Bearer not-needed-here
+
+{}
+
+### 🚨 Webhook от Lemon Squeezy (подписка создана)
+# ⚠️ Для тестов через ngrok: убедись, что Lemon отправляет webhook на внешний URL вида:
+# https://<твой-ngrok-сабдомен>.ngrok.io/api/lemon-webhook/
+POST http://localhost:8000/api/lemon-webhook/
+Content-Type: application/json
+X-Signature: {{valid_signature}}
+
+{
+  "meta": {
+    "event_name": "subscription_created"
+  },
+  "data": {
+    "id": "sub_test_123",
+    "attributes": {
+      "customer_id": "cust_test_456",
+      "custom_data": {
+        "user_id": 5
+      }
+    }
+  }
+}
+
+### ⛔ Webhook: отмена подписки
+POST http://localhost:8000/api/lemon-webhook/
+Content-Type: application/json
+X-Signature: {{valid_signature}}
+
+{
+  "meta": {
+    "event_name": "subscription_cancelled"
+  },
+  "data": {
+    "id": "sub_test_123",
+    "attributes": {
+      "customer_id": "cust_test_456",
+      "custom_data": {
+        "user_id": 5
+      }
+    }
+  }
+}
+
+### 👤 Моя подписка (проверка)
+GET http://localhost:8000/api/my-subscription/
+Authorization: Bearer {{access_token}}
+
+### 💎 Премиум контент
+GET http://localhost:8000/api/premium/
+Authorization: Bearer {{access_token}}
+
+### 📊 Статус подписки другого пользователя
+GET http://localhost:8000/api/subscription-status/5/
