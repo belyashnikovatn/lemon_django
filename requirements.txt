@@ -1,0 +1,6 @@
+Django==4.2.6
+djangorestframework==3.14.0
+requests
+gunicorn
+python-dotenv==1.0.1
+djangorestframework-simplejwt
