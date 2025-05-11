@@ -1,0 +1,49 @@
+### 🔑 Получить токен
+POST http://localhost:8000/api/login/
+Content-Type: application/json
+
+{
+  "username": "bun",
+  "password": "bun123"
+}
+
+
+### 🧾 Создание checkout (вставь access_token после запроса выше)
+POST http://localhost:8000/api/create_checkout/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2OTgwMDg4LCJpYXQiOjE3NDY5NzY0ODgsImp0aSI6IjE5MmFjNDc1MTAwODQ1MmU5YTAyZmI4Yjg2YjBjMWRlIiwidXNlcl9pZCI6NX0.IFGnEiuNrT87i8OmKtbASTCl_I4z2KglswfJDY3Pf7g
+Content-Type: application/json
+
+{}
+
+
+### 🚨 Webhook от Lemon Squeezy (симуляция)
+POST http://localhost:8000/api/lemon-webhook/
+Content-Type: application/json
+X-Signature: 83908f5182234686320a544e1f836ea67777987113d6d8a98dbb026880702a3a
+
+{
+  "meta": {
+    "event_name": "subscription_created"
+  },
+  "data": {
+    "id": "sub_test_123",
+    "attributes": {
+      "customer_id": "cust_test_456",
+      "custom_data": {
+        "user_id": 5
+      }
+    }
+  }
+}
+
+
+### 👤 Посмотреть свою подписку
+GET http://localhost:8000/api/subscription_status/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2OTgwMDg4LCJpYXQiOjE3NDY5NzY0ODgsImp0aSI6IjE5MmFjNDc1MTAwODQ1MmU5YTAyZmI4Yjg2YjBjMWRlIiwidXNlcl9pZCI6NX0.IFGnEiuNrT87i8OmKtbASTCl_I4z2KglswfJDY3Pf7g
+
+
+
+### 💎 Доступ к премиум-вью
+GET http://localhost:8000/api/premium_content/
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ2OTgwMDg4LCJpYXQiOjE3NDY5NzY0ODgsImp0aSI6IjE5MmFjNDc1MTAwODQ1MmU5YTAyZmI4Yjg2YjBjMWRlIiwidXNlcl9pZCI6NX0.IFGnEiuNrT87i8OmKtbASTCl_I4z2KglswfJDY3Pf7g
+
