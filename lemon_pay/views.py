@@ -23,30 +23,41 @@ User = get_user_model()
 
 
 class RegisterView(generics.CreateAPIView):
+    """
+    Регистрация пользователя
+    """
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class LoginView(TokenObtainPairView):
+    """
+    Логин пользователя
+    """
+
     def post(self, request, *args, **kwargs):
         response = super().post(request, *args, **kwargs)
         if response.status_code == 200:
-            user = User.objects.get(username=request.data['username'])
-            response.data['user'] = {
-                'id': user.id,
-                'username': user.username,
-                'email': user.email,
+            user = User.objects.get(username=request.data["username"])
+            response.data["user"] = {
+                "id": user.id,
+                "username": user.username,
+                "email": user.email,
             }
         return response
 
 
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([IsAuthenticated])
 def create_checkout(request):
+    """
+    Создание checkout в Lemon Squeezy
+    """
     headers = {
         "Authorization": f"Bearer {settings.LEMON_API_KEY}",
         "Accept": "application/vnd.api+json",
-        "Content-Type": "application/vnd.api+json"
+        "Content-Type": "application/vnd.api+json",
     }
 
     payload = {
@@ -55,9 +66,7 @@ def create_checkout(request):
             "attributes": {
                 "checkout_data": {
                     "email": request.user.email,
-                    "custom": {
-                        "user_id": str(request.user.id)
-                    }
+                    "custom": {"user_id": str(request.user.id)},
                 },
                 "product_options": {
                     "enabled_variants": [int(settings.LEMON_VARIANT_ID)],
@@ -68,23 +77,23 @@ def create_checkout(request):
                 "checkout_options": {
                     "embed": False,
                     "media": False,
-                    "button_color": "#2DD272"  # Цвет кнопки по умолчанию
-                }
+                    "button_color": "#2DD272",  # Цвет кнопки по умолчанию
+                },
             },
             "relationships": {
                 "store": {
                     "data": {
                         "type": "stores",
-                        "id": str(settings.LEMON_STORE_ID)
+                        "id": str(settings.LEMON_STORE_ID),
                     }
                 },
                 "variant": {
                     "data": {
                         "type": "variants",
-                        "id": str(settings.LEMON_VARIANT_ID)
+                        "id": str(settings.LEMON_VARIANT_ID),
                     }
-                }
-            }
+                },
+            },
         }
     }
 
@@ -93,19 +102,25 @@ def create_checkout(request):
             f"{settings.LEMON_BASE_URL}/checkouts",
             headers=headers,
             json=payload,
-            timeout=10  # Таймаут для запроса
+            timeout=10,  # Таймаут для запроса
         )
 
         # Если статус не 201 Created
         if res.status_code != 201:
-            error_detail = res.json().get('errors', [{}])[
-                0].get('detail', 'Unknown error')
-            return Response({
-                "error": "Ошибка при создании checkout",
-                "status_code": res.status_code,
-                "detail": error_detail,
-                "lemon_response": res.json()
-            }, status=400)
+            error_detail = (
+                res.json()
+                .get("errors", [{}])[0]
+                .get("detail", "Unknown error")
+            )
+            return Response(
+                {
+                    "error": "Ошибка при создании checkout",
+                    "status_code": res.status_code,
+                    "detail": error_detail,
+                    "lemon_response": res.json(),
+                },
+                status=400,
+            )
 
         data = res.json()
         checkout_url = data.get("data", {}).get("attributes", {}).get("url")
@@ -114,11 +129,13 @@ def create_checkout(request):
         parsed_url = urlparse(checkout_url)
         query_params = parse_qs(parsed_url.query)
 
-        return Response({
-            "checkout_url": checkout_url,
-            "checkout_id": parsed_url.path.split('/')[-1],
-            "signature": query_params.get('signature', [''])[0]
-        })
+        return Response(
+            {
+                "checkout_url": checkout_url,
+                "checkout_id": parsed_url.path.split("/")[-1],
+                "signature": query_params.get("signature", [""])[0],
+            }
+        )
 
     except requests.exceptions.RequestException as e:
         error_msg = f"Ошибка подключения к Lemon Squeezy: {str(e)}"
@@ -129,6 +146,9 @@ def create_checkout(request):
 
 
 def verify_signature(request):
+    """
+    Проверка подписи вебхука
+    """
     print("Headers:", request.headers)
     signature = request.headers.get("X-Signature")
     if not signature:
@@ -144,9 +164,12 @@ def verify_signature(request):
 
 
 @csrf_exempt
-@api_view(['POST'])
+@api_view(["POST"])
 @permission_classes([])  # публичный доступ
 def lemon_webhook(request):
+    """
+    Обработка вебхука от Lemon Squeezy
+    """
     if not verify_signature(request):
         return HttpResponse("Invalid signature", status=403)
 
@@ -178,7 +201,8 @@ def lemon_webhook(request):
                 defaults={
                     "lemon_subscription_id": subscription_id,
                     "lemon_customer_id": customer_id,
-                    "is_active": True}
+                    "is_active": True,
+                },
             )
             print(f"Subscription created for user {user_id}")
         except User.DoesNotExist:
@@ -186,47 +210,71 @@ def lemon_webhook(request):
             return HttpResponse("User not found", status=404)
     elif event in ["subscription_cancelled", "subscription_expired"]:
         Subscription.objects.filter(
-            lemon_subscription_id=subscription_id).update(is_active=False)
+            lemon_subscription_id=subscription_id
+        ).update(is_active=False)
         print(f"Subscription {subscription_id} cancelled or expired")
     elif event == "subscription_resumed":
         Subscription.objects.filter(
-            lemon_subscription_id=subscription_id).update(is_active=True)
+            lemon_subscription_id=subscription_id
+        ).update(is_active=True)
         print(f"Subscription {subscription_id} resumed")
     return HttpResponse("OK", status=200)
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated, HasActiveSubscription])
 def premium_content(request):
-    return Response({'message': 'Добро пожаловать в премиум-зону 🚀'})
+    """
+    Пример защищенного контента
+    """
+    return Response({"message": "Добро пожаловать в премиум-зону 🚀"})
 
 
 def payment_success(request, checkout_id):
-    return render(request, 'payments/success.html', {
-        'checkout_id': checkout_id
-    })
+    """
+    Обработка успешного платежа
+    """
+    return render(
+        request, "payments/success.html", {"checkout_id": checkout_id}
+    )
 
 
 def payment_receipe(request, checkout_id):
-    return render(request, 'payments/receipe.html', {
-        'checkout_id': checkout_id,
-        'email': request.user.email if request.user.is_authenticated else 'customer@example.com',
-        'date': timezone.now().strftime("%d.%m.%Y %H:%M"),
-        'amount': '9.99$'  # Здесь можно получить реальную сумму из БД
-    })
+    """
+    Обработка успешного платежа
+    """
+    return render(
+        request,
+        "payments/receipe.html",
+        {
+            "checkout_id": checkout_id,
+            "email": (
+                request.user.email
+                if request.user.is_authenticated
+                else "customer@example.com"
+            ),
+            "date": timezone.now().strftime("%d.%m.%Y %H:%M"),
+            "amount": "9.99$",  # Здесь можно получить реальную сумму из БД
+        },
+    )
 
 
-@api_view(['GET'])
+@api_view(["GET"])
 @permission_classes([IsAuthenticated])
 def subscription_status(request):
+    """
+    Получение статуса подписки
+    """
     user_id = request.user.id
     try:
         user = User.objects.get(id=user_id)
         sub = user.subscription
-        return Response({
-            "is_active": sub.is_active,
-            "subscription_id": sub.lemon_subscription_id
-        })
+        return Response(
+            {
+                "is_active": sub.is_active,
+                "subscription_id": sub.lemon_subscription_id,
+            }
+        )
     except User.DoesNotExist:
         return Response({"error": "User not found"}, status=404)
     except AttributeError:
