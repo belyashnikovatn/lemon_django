@@ -1,29 +1,35 @@
+### 🆕 Регистрация нового пользователя
+POST http://localhost:8000/api/register/
+Content-Type: application/json
+
+{
+  "username": "{{username}}",
+  "email": "{{email}}",
+  "password": "{{password}}"
+}
+
+
 ### 🔑 Получить токен
 POST http://localhost:8000/api/login/
 Content-Type: application/json
 
 {
-  "username": "bun",
-  "password": "bun123"
+  "username": "{{username}}",
+  "password": "{{password}}"
 }
 
 
 ### 🧾 Создание checkout (вставь access_token после запроса выше)
 POST http://localhost:8000/api/create_checkout/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3MTI1Njc0LCJpYXQiOjE3NDcxMjIwNzQsImp0aSI6IjFkOTU5MzY0ZmZlYzQ2NjRiYWI2MzJhODU4MTQzYjU0IiwidXNlcl9pZCI6NX0.ceeyEBih7kf8bs_MjvB3LKJSL97-yGVbWQ2XkIFit_o
+Authorization: Bearer {{access_token}}
 Content-Type: application/json
 
-
+{}
 
 ### 👤 Посмотреть свою подписку
 GET http://localhost:8000/api/subscription_status/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3MTI1Njc0LCJpYXQiOjE3NDcxMjIwNzQsImp0aSI6IjFkOTU5MzY0ZmZlYzQ2NjRiYWI2MzJhODU4MTQzYjU0IiwidXNlcl9pZCI6NX0.ceeyEBih7kf8bs_MjvB3LKJSL97-yGVbWQ2XkIFit_o
-
-
-
+Authorization: Bearer {{access_token}}
 
 ### 💎 Доступ к премиум-вью
 GET http://localhost:8000/api/premium_content/
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzQ3MTI1Njc0LCJpYXQiOjE3NDcxMjIwNzQsImp0aSI6IjFkOTU5MzY0ZmZlYzQ2NjRiYWI2MzJhODU4MTQzYjU0IiwidXNlcl9pZCI6NX0.ceeyEBih7kf8bs_MjvB3LKJSL97-yGVbWQ2XkIFit_o
-
-
+Authorization: Bearer {{access_token}}
