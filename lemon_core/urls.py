@@ -7,7 +7,7 @@ from lemon_pay.views import (
     lemon_webhook,
     premium_content,
     payment_success,
-    payment_receipe,
+    payment_receipt,
     subscription_status,
 )
 
@@ -28,14 +28,15 @@ urlpatterns = [
     # Вебхуки
     path("api/lemon_webhook/", lemon_webhook, name="lemon_webhook"),
     # Платежные страницы
+    path("success/", payment_success, name="payment_success"),
     path(
-        "payments/success/<str:checkout_id>/",
+        "success/<str:checkout_id>/",
         payment_success,
-        name="payment_success",
+        name="payment_success_with_id",
     ),
     path(
-        "payments/receipt/<str:checkout_id>/",
-        payment_receipe,
-        name="payment_receipe",
+        "receipt/<str:checkout_id>/",
+        payment_receipt,
+        name="payment_receipt",
     ),
 ]

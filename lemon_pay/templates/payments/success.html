@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Успешная оплата</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; }
+        .success-message { color: #2DD272; font-size: 24px; margin-bottom: 20px; }
+        .checkout-id { background: #f5f5f5; padding: 10px; display: inline-block; }
+    </style>
+</head>
+<body>
+    <div class="success-message">🎉 {{ message }}</div>
+    
+    {% if checkout_id and checkout_id != "не указан" %}
+        <p>Номер вашего заказа: <span class="checkout-id">{{ checkout_id }}</span></p>
+    {% endif %}
+    
+    <p>Мы отправили детали подписки на вашу электронную почту.</p>
+</body>
+</html>

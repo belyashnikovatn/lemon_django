@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ваша квитанция</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .receipt { border: 1px solid #ddd; padding: 20px; border-radius: 5px; }
+        .header { text-align: center; margin-bottom: 20px; }
+        .details { margin: 20px 0; }
+        .footer { margin-top: 20px; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <div class="receipt">
+        <div class="header">
+            <h1>Ваша квитанция</h1>
+            <p>Спасибо, что выбрали наш сервис</p>
+        </div>
+        
+        <div class="details">
+            <p><strong>Номер заказа:</strong> {{ checkout_id }}</p>
+            <p><strong>Email:</strong> {{ email }}</p>
+            <p><strong>Дата:</strong> {{ date }}</p>
+            <p><strong>Сумма:</strong> {{ amount }}</p>
+        </div>
+        
+        <div class="footer">
+            <p>Если у вас есть вопросы, свяжитесь с нашей поддержкой.</p>
+        </div>
+    </div>
+</body>
+</html>

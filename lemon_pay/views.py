@@ -69,15 +69,7 @@ def create_checkout(request):
                     "custom": {"user_id": str(request.user.id)},
                 },
                 "product_options": {
-                    "enabled_variants": [int(settings.LEMON_VARIANT_ID)],
-                    "redirect_url": f"{settings.SITE_DOMAIN}/payments/success/{{checkout_id}}/",
-                    "receipt_link_url": f"{settings.SITE_DOMAIN}/payments/receipe/{{checkout_id}}/",
-                    "receipt_thank_you_note": "Спасибо за покупку!",
-                },
-                "checkout_options": {
-                    "embed": False,
-                    "media": False,
-                    "button_color": "#2DD272",  # Цвет кнопки по умолчанию
+                    "redirect_url": f"{settings.SITE_DOMAIN}/success/{{checkout_id}}/",
                 },
             },
             "relationships": {
@@ -230,22 +222,28 @@ def premium_content(request):
     return Response({"message": "Добро пожаловать в премиум-зону 🚀"})
 
 
-def payment_success(request, checkout_id):
+def payment_success(request, checkout_id=None):
     """
     Обработка успешного платежа
     """
+    checkout_id = request.GET.get("checkout_id")
     return render(
-        request, "payments/success.html", {"checkout_id": checkout_id}
+        request,
+        "payments/success.html",
+        {
+            "checkout_id": checkout_id or "не указан",
+            "message": "Спасибо за покупку! Ваша подписка успешно активирована.",
+        },
     )
 
 
-def payment_receipe(request, checkout_id):
+def payment_receipt(request, checkout_id):
     """
-    Обработка успешного платежа
+    Обработка квитанции
     """
     return render(
         request,
-        "payments/receipe.html",
+        "payments/receipt.html",  # Обновленный путь
         {
             "checkout_id": checkout_id,
             "email": (
@@ -254,7 +252,7 @@ def payment_receipe(request, checkout_id):
                 else "customer@example.com"
             ),
             "date": timezone.now().strftime("%d.%m.%Y %H:%M"),
-            "amount": "9.99$",  # Здесь можно получить реальную сумму из БД
+            "amount": "9.99$",
         },
     )
 
