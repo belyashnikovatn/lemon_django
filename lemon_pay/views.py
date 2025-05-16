@@ -66,6 +66,7 @@ def create_checkout(request):
             "attributes": {
                 "checkout_data": {
                     "email": request.user.email,
+                    "name": request.user.username,
                     "custom": {"user_id": str(request.user.id)},
                 },
                 "product_options": {
